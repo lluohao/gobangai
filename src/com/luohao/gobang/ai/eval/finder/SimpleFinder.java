@@ -1,4 +1,4 @@
-package com.luohao.gobang.eval.finder;
+package com.luohao.gobang.ai.eval.finder;
 
 /**
  * Created by llhao on 2017/4/22.

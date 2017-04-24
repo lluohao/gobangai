@@ -1,4 +1,4 @@
-package com.luohao.gobang.eval.finder;
+package com.luohao.gobang.ai.eval.finder;
 import java.util.Arrays;
 
 /**

@@ -1,7 +1,7 @@
-package com.luohao.gobang.eval;
+package com.luohao.gobang.ai.eval;
 
 import com.luohao.gobang.chess.Chess;
-import com.luohao.gobang.eval.finder.SimpleFinder;
+import com.luohao.gobang.ai.eval.finder.SimpleFinder;
 
 /**
  * Created by llhao on 2017/4/22.

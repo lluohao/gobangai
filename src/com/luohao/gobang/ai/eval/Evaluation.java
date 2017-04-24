@@ -1,4 +1,4 @@
-package com.luohao.gobang.eval;
+package com.luohao.gobang.ai.eval;
 
 import com.luohao.gobang.chess.Chess;
 

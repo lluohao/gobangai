@@ -32,4 +32,16 @@ public class ResultNodeUtils {
     public static List<ResultNode> minNodes(List<ResultNode> nodes) {
         return serchNode(nodes, -1);
     }
+
+    public static int countChildren(ResultNode root) {
+        List<ResultNode> children = root.getChildren();
+        if (children == null) {
+            return 0;
+        }
+        int count = children.size();
+        for (ResultNode child : children) {
+            count += countChildren(child);
+        }
+        return count;
+    }
 }

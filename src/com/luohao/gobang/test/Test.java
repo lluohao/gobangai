@@ -3,9 +3,10 @@ package com.luohao.gobang.test;
 import com.luohao.gobang.ai.AI;
 import com.luohao.gobang.ai.MinmaxAI;
 import com.luohao.gobang.ai.ResultNode;
+import com.luohao.gobang.ai.util.ResultNodeUtils;
 import com.luohao.gobang.chess.Chess;
-import com.luohao.gobang.eval.Evaluation;
-import com.luohao.gobang.eval.SimpleEvaluation;
+import com.luohao.gobang.ai.eval.Evaluation;
+import com.luohao.gobang.ai.eval.SimpleEvaluation;
 import com.luohao.gobang.utils.Matrixs;
 
 /**
@@ -36,7 +37,7 @@ public class Test {
         for (int i = 0; i < 20; i++) {
             ResultNode next = ai.next(chess, i % 2 == 0 ? -1 : 1, 2);
             chess.play(next.getX(), next.getY(), i % 2 == 0 ? -1 : 1);
-            System.out.println(next.getX() + "," + next.getY() + "," + next.getScore());
+            System.out.println(next.getX() + "," + next.getY() + "," + next.getScore()+",搜索节点数："+ ResultNodeUtils.countChildren(next.getParent()));
             Matrixs.print(chess.getSquare());
         }
     }
