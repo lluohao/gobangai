@@ -8,5 +8,7 @@ import com.luohao.gobang.chess.Chess;
 public interface Evaluation {
     int eval(Chess chess, int type);
 
+    int absEval(Chess chess, int type);
+
     int eval(Chess chess, int type, int next);
 }

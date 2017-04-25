@@ -20,4 +20,15 @@ public class SimpleFinder implements Finder {
         }
         return count;
     }
+
+    public static void main(String[] args) {
+        SimpleFinder finder = new SimpleFinder();
+        int[] sqe = new int[225];
+        int[] target = new int[6];
+        long st = System.currentTimeMillis();
+        for (int i = 0; i < 1000000; i++) {
+            finder.find(sqe, target);
+        }
+        System.out.println(System.currentTimeMillis()-st);
+    }
 }

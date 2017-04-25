@@ -12,7 +12,7 @@ public class ResultNode {
     private int x;
     private int y;
     private int type;
-    private int score;
+    private Integer score;
     private ResultNode parent;
     private List<ResultNode> children = new ArrayList<>();
     private boolean max;
@@ -43,7 +43,7 @@ public class ResultNode {
         this.y = y;
     }
 
-    public void setScore(int score) {
+    public void setScore(Integer score) {
         this.score = score;
     }
 
@@ -79,7 +79,7 @@ public class ResultNode {
         return y;
     }
 
-    public int getScore() {
+    public Integer getScore() {
         return score;
     }
 

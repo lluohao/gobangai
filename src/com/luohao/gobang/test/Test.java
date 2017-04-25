@@ -5,8 +5,6 @@ import com.luohao.gobang.ai.MinmaxAI;
 import com.luohao.gobang.ai.ResultNode;
 import com.luohao.gobang.ai.util.ResultNodeUtils;
 import com.luohao.gobang.chess.Chess;
-import com.luohao.gobang.ai.eval.Evaluation;
-import com.luohao.gobang.ai.eval.SimpleEvaluation;
 import com.luohao.gobang.utils.Matrixs;
 
 /**
@@ -21,9 +19,9 @@ public class Test {
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                {0, 0, 0, 0, 0, 0, 1, -1, 1, 0, 0, 0, 0, 0, 0},
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0},
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -32,10 +30,9 @@ public class Test {
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 
         });
-        Evaluation evaluation = new SimpleEvaluation();
         AI ai = new MinmaxAI();
         for (int i = 0; i < 20; i++) {
-            ResultNode next = ai.next(chess, i % 2 == 0 ? -1 : 1, 2);
+            ResultNode next = ai.next(chess, i % 2 == 0 ? -1 : 1, 3);
             chess.play(next.getX(), next.getY(), i % 2 == 0 ? -1 : 1);
             System.out.println(next.getX() + "," + next.getY() + "," + next.getScore()+",搜索节点数："+ ResultNodeUtils.countChildren(next.getParent()));
             Matrixs.print(chess.getSquare());

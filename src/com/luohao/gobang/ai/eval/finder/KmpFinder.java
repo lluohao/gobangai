@@ -1,5 +1,4 @@
 package com.luohao.gobang.ai.eval.finder;
-import java.util.Arrays;
 
 /**
  * Created by llhao on 2017/4/22.
@@ -8,16 +7,21 @@ public class KmpFinder implements Finder {
     public int find(int[] sqe, int[] target) {
         int[] next = getNext(target);
         int count = 0;
-        System.out.println(Arrays.toString(next));
-        out:for (int i = 0; i <= sqe.length - target.length;) {
-            for (int j = 0; j < target.length; j++) {
-                if (sqe[i] != target[j]) {
-                    i+=j-next[j];
-                    continue out;
+        for (int i = 0; i <= sqe.length - target.length; ) {
+            boolean flag = true;
+            int j = 0;
+            for (; j < target.length; j++) {
+                if (sqe[i + j] != target[j]) {
+                    flag = false;
+                    break;
                 }
             }
-            count++;
-            i+=target.length;
+            if (flag) {
+                count++;
+                i++;
+            } else {
+                i += j - next[j];
+            }
         }
         return count;
     }
@@ -38,5 +42,10 @@ public class KmpFinder implements Finder {
             }
         }
         return next;
+    }
+
+    public static void main(String[] args) {
+        KmpFinder finder = new KmpFinder();
+        System.out.println(finder.find(new int[]{1,2,3,4,5,6,7,1,0,1,1,1,2,3,4,1,0,1,1,1},new int[]{1,0,1,1,1}));
     }
 }

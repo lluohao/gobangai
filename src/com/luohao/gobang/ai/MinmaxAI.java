@@ -7,6 +7,7 @@ import com.luohao.gobang.ai.interceptor.Interceptor;
 import com.luohao.gobang.ai.interceptor.SimpleDateInterceptor;
 import com.luohao.gobang.ai.util.ResultNodeUtils;
 import com.luohao.gobang.chess.Chess;
+import com.luohao.gobang.utils.Matrixs;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,7 @@ public class MinmaxAI implements AI {
     public MinmaxAI() {
         interceptors.add(new SimpleDateInterceptor());
         interceptors.add(new AlphaInterceptor());
+        //interceptors.add(new WorthInterceptor(1.1, 0.9));
     }
 
     private void countNode(ResultNode base, int type, int deep) {
@@ -30,6 +32,10 @@ public class MinmaxAI implements AI {
             //计算此节点的子节点的评价值
             countChildren(base, type, deep);
             List<ResultNode> resultNodes = base.isMax() ? ResultNodeUtils.maxNodes(base.getChildren()) : ResultNodeUtils.minNodes(base.getChildren());
+            if (resultNodes.size() == 0) {
+                System.out.println(base.getX() + "," + base.getY());
+                Matrixs.print(base.getChess().getSquare());
+            }
             ResultNode node = resultNodes.get((int) (Math.random() * resultNodes.size()));
             base.setScore(node.getScore());
             base.setNext(node);
@@ -39,6 +45,7 @@ public class MinmaxAI implements AI {
     private void countChildren(ResultNode base, int type, int deep) {
         List<ResultNode> children = new ArrayList<>();
         Chess chess = base.getChess();
+        base.setChildren(children);
         for (int i = 0; i < 15; i++) {
             for (int j = 0; j < 15; j++) {
                 if (intercept(base, i, j)) {//如果这个位置可以下棋

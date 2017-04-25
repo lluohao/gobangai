@@ -11,7 +11,7 @@ import java.util.List;
 public class ResultNodeUtils {
     public static List<ResultNode> serchNode(List<ResultNode> nodes, int p) {
         int max = Integer.MIN_VALUE;
-        for (int i = 1; i < nodes.size(); i++) {
+        for (int i = 0; i < nodes.size(); i++) {
             if (nodes.get(i).getScore() * p > max * p) {
                 max = nodes.get(i).getScore();
             }
@@ -23,6 +23,26 @@ public class ResultNodeUtils {
             }
         }
         return maxNodes;
+    }
+
+    public static ResultNode serchOneNode(List<ResultNode> nodes, int p) {
+        int max = Integer.MIN_VALUE;
+        ResultNode node = nodes.get(0);
+        for (int i = 1; i < nodes.size(); i++) {
+            if (nodes.get(i).getScore() * p > max * p) {
+                max = nodes.get(i).getScore();
+                node = nodes.get(i);
+            }
+        }
+        return node;
+    }
+
+    public static ResultNode maxNode(List<ResultNode> nodes) {
+        return serchOneNode(nodes, 1);
+    }
+
+    public static ResultNode minNode(List<ResultNode> nodes) {
+        return serchOneNode(nodes, -1);
     }
 
     public static List<ResultNode> maxNodes(List<ResultNode> nodes) {

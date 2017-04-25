@@ -1,7 +1,8 @@
 package com.luohao.gobang.ai.eval;
 
-import com.luohao.gobang.chess.Chess;
+import com.luohao.gobang.ai.eval.finder.Finder;
 import com.luohao.gobang.ai.eval.finder.SimpleFinder;
+import com.luohao.gobang.chess.Chess;
 
 /**
  * Created by llhao on 2017/4/22.
@@ -20,9 +21,9 @@ public class SimpleEvaluation implements Evaluation {
             {0, 0, -1, -1, 0, 0}, {0, 0, -1, 0, -1, 0}, {0, -1, 0, -1, 0, 0}, {0, 0, 0, -1, 0, 0}, {0, 0, -1, 0, 0, 0}
     };
 
-    public static final int[] SHAP_SCORE = {50000, 4320, 720, 720, 720, 720, 720, 720, 720, 720, 720, 120, 120, 120, 1, 1};
+    public static final int[] SHAP_SCORE = {50000, 4320, 720, 720, 700, 700, 720, 720, 700, 700, 700, 120, 100, 100, 3, 3};
 
-    private SimpleFinder finder = new SimpleFinder();
+    private Finder finder = new SimpleFinder();
 
     @Override
     public int eval(Chess chess, int type) {
@@ -44,6 +45,20 @@ public class SimpleEvaluation implements Evaluation {
     }
 
     @Override
+    public int absEval(Chess chess, int type) {
+        int[][] myType = type == 1 ? TYPE_BLACK : TYPE_WHITE;
+        int[] myCount = new int[myType.length];
+        for (int i = 0; i < myCount.length; i++) {
+            myCount[i] = find(chess, myType[i]);
+        }
+        int myScore = 0;
+        for (int i = 0; i < myCount.length; i++) {
+            myScore += myCount[i] * SHAP_SCORE[i];
+        }
+        return myScore;
+    }
+
+    @Override
     public int eval(Chess chess, int type, int next) {
         int[][] myType = next == 1 ? TYPE_BLACK : TYPE_WHITE;
         int[][] otType = next == 1 ? TYPE_WHITE : TYPE_BLACK;
@@ -56,9 +71,9 @@ public class SimpleEvaluation implements Evaluation {
         //判断是否包含己方活五
         if (myCount[0] > 0) {
             return 100000;
-        }else if(otCount[0]>0){
+        } else if (otCount[0] > 0) {
             return -100000;
-        }else if(myCount[1]>0){
+        } else if (myCount[1] > 0) {
 
         }
         return 0;
@@ -70,5 +85,32 @@ public class SimpleEvaluation implements Evaluation {
         count += finder.find(chesss.getLeft(), target);
         count += finder.find(chesss.getRight(), target);
         return count;
+    }
+
+    public static void main(String[] args) {
+        SimpleEvaluation evaluation = new SimpleEvaluation();
+        Chess chess = Chess.fromDate(new int[][]{
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 1, -1, 1, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+
+        });
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < 10000000; i++) {
+            chess.play(i % 15, i % 15, 1);
+        }
+        System.out.println(System.currentTimeMillis() - start);
     }
 }
