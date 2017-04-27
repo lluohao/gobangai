@@ -25,6 +25,18 @@ public class SimpleEvaluation implements Evaluation {
 
     private Finder finder = new SimpleFinder();
 
+    public int win(Chess chess){
+        int black = find(chess,TYPE_BLACK[0]);
+        if(black>0){
+            return 1;
+        }
+        int white = find(chess,TYPE_WHITE[0]);
+        if(white>0){
+            return -1;
+        }
+        return 0;
+    }
+
     @Override
     public int eval(Chess chess, int type) {
         int[][] myType = type == 1 ? TYPE_BLACK : TYPE_WHITE;
@@ -89,6 +101,7 @@ public class SimpleEvaluation implements Evaluation {
 
     public static void main(String[] args) {
         SimpleEvaluation evaluation = new SimpleEvaluation();
+        MatrixEvaluation matrixEvaluation = new MatrixEvaluation();
         Chess chess = Chess.fromDate(new int[][]{
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -107,10 +120,10 @@ public class SimpleEvaluation implements Evaluation {
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 
         });
-        long start = System.currentTimeMillis();
-        for (int i = 0; i < 10000000; i++) {
-            chess.play(i % 15, i % 15, 1);
+        long st = System.currentTimeMillis();
+        for(int i = 0;i<100000;i++){
+            matrixEvaluation.eval(chess,1);
         }
-        System.out.println(System.currentTimeMillis() - start);
+        System.out.println(System.currentTimeMillis()-st);
     }
 }

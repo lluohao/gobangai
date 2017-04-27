@@ -1,10 +1,15 @@
 package com.luohao.gobang.chess;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class Chess {
-    public int[] data;
-    public int[] dataT;
-    public int[] left;
-    public int[] right;
-    public int[][] square;
+    private int[] data;
+    private int[] dataT;
+    private int[] left;
+    private int[] right;
+    private int[][] square;
+    private List<ChessNode> nodes = new ArrayList<>();
 
     public Chess() {
         square = new int[15][15];
@@ -44,7 +49,25 @@ public class Chess {
 
         //处理原始数据
         square[y][x] = type;
+
+        if(type==0){
+            back();
+        }else {
+            //添加步骤
+            ChessNode node = new ChessNode();
+            node.setX(x);
+            node.setY(y);
+            node.setType(type);
+            nodes.add(node);
+        }
         return true;
+    }
+
+    private void back(){
+        if(nodes.size()==0){
+            return;
+        }
+        nodes.remove(nodes.size()-1);
     }
 
     private int indexOfRight(int x, int y) {
@@ -96,6 +119,10 @@ public class Chess {
 
     public int[][] getSquare() {
         return square;
+    }
+
+    public List<ChessNode> getNodes() {
+        return nodes;
     }
 
     public static Chess fromDate(int[][] data) {
