@@ -3,7 +3,8 @@ package com.luohao.gobang.test;
 import com.luohao.gobang.ai.AI;
 import com.luohao.gobang.ai.MinmaxAI;
 import com.luohao.gobang.ai.ResultNode;
-import com.luohao.gobang.ai.eval.SimpleEvaluation;
+import com.luohao.gobang.ai.eval.Evaluation;
+import com.luohao.gobang.ai.eval.MatrixEvaluation;
 import com.luohao.gobang.ai.util.ResultNodeUtils;
 import com.luohao.gobang.chess.Chess;
 import com.luohao.gobang.utils.Matrixs;
@@ -38,20 +39,16 @@ public class Test {
         chess.play(8,5,1);
         AI ai = new MinmaxAI();
         Scanner in = new Scanner(System.in);
-        SimpleEvaluation evaluation = new SimpleEvaluation();
+        Evaluation evaluation = new MatrixEvaluation();
         for (int i = 0; i < 100; i++) {
             long start = System.currentTimeMillis();
             ResultNode next = null;
             if(i%2==0){
-                next = ai.next(chess, -1, 4);
+                next = ai.next(chess, -1, 3);
                 chess.play(next.getX(), next.getY(), -1);
                 System.out.println(next.getX() + "," + next.getY() + "," + next.getScore()+",搜索节点数："+ ResultNodeUtils.countChildren(next.getParent()));
             }else{
-//                System.out.print("please input the next:");
-//                int x = in.nextInt();
-//                int y = in.nextInt();
-//                chess.play(x,y,1);
-                next = ai.next(chess, 1, 4);
+                next = ai.next(chess, 1, 3);
                 chess.play(next.getX(), next.getY(), 1);
                 System.out.println(next.getX() + "," + next.getY() + "," + next.getScore()+",搜索节点数："+ ResultNodeUtils.countChildren(next.getParent()));
             }

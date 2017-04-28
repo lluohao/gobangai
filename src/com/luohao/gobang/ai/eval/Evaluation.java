@@ -11,4 +11,6 @@ public interface Evaluation {
     int absEval(Chess chess, int type);
 
     int eval(Chess chess, int type, int next);
+
+    int win(Chess chess);
 }

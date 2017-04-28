@@ -33,7 +33,6 @@ public class ChessNode {
         this.type = type;
     }
 
-    @Override
     public String toString() {
         return "ChessNode{" +
                 "x=" + x +

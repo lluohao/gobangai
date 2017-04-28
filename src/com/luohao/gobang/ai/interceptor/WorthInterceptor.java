@@ -2,13 +2,13 @@ package com.luohao.gobang.ai.interceptor;
 
 import com.luohao.gobang.ai.ResultNode;
 import com.luohao.gobang.ai.eval.Evaluation;
-import com.luohao.gobang.ai.eval.SimpleEvaluation;
+import com.luohao.gobang.ai.eval.MatrixEvaluation;
 
 /**
- * Created by llhao on 2017/4/24.
+ * Created by luohao on 2017/4/24.
  */
 public class WorthInterceptor implements Interceptor {
-    private Evaluation evaluation = new SimpleEvaluation();
+    private Evaluation evaluation = new MatrixEvaluation();
     private double myp;
     private double otp;
 
@@ -19,9 +19,6 @@ public class WorthInterceptor implements Interceptor {
 
     @Override
     public boolean intercept(ResultNode node, int i, int j) {
-//        if (i == 7 && j == 5) {
-//            System.out.println();
-//        }
         int myOld = evaluation.absEval(node.getChess(), -node.getType());
         int otOld = evaluation.absEval(node.getChess(), node.getType());
         node.getChess().play(j, i, -node.getType());
