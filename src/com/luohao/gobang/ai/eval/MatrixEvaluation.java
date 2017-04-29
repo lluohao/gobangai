@@ -2,6 +2,9 @@ package com.luohao.gobang.ai.eval;
 
 import com.luohao.gobang.chess.Chess;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by llhao on 2017/4/26.
  */
@@ -42,6 +45,79 @@ public class MatrixEvaluation implements Evaluation {
             myScore += myCount[i] * SHAP_SCORE[i];
         }
         return myScore;
+    }
+
+    private List<Feature> findFeature(int[][] data, int[] target) {
+        List<Feature> features = new ArrayList<>();
+        //横向查找
+        for (int y = 0; y < data.length; y++) {
+            for (int x = 0; x <= data[y].length - target.length; x++) {
+                boolean flag = true;
+                for (int l = 0; l < target.length; l++) {
+                    if (data[y][x + l] != target[l]) {
+                        flag = false;
+                        break;
+                    }
+                }
+                if (flag) {
+                    Feature feature = new Feature();
+                    feature.setStart(x,y);
+                    feature.setType(1);
+                }
+            }
+        }
+        //纵向查找
+        for (int y = 0; y <= data.length - target.length; y++) {
+            for (int x = 0; x < data[y].length; x++) {
+                boolean flag = true;
+                for (int l = 0; l < target.length; l++) {
+                    if (data[y + l][x] != target[l]) {
+                        flag = false;
+                        break;
+                    }
+                }
+                if (flag) {
+                    Feature feature = new Feature();
+                    feature.setStart(x,y);
+                    feature.setType(2);
+                }
+            }
+        }
+        //左斜查找查找
+        for (int y = target.length - 1; y < data.length; y++) {
+            for (int x = 0; x <= data[y].length - target.length; x++) {
+                boolean flag = true;
+                for (int l = 0; l < target.length; l++) {
+                    if (data[y - l][x + l] != target[l]) {
+                        flag = false;
+                        break;
+                    }
+                }
+                if (flag) {
+                    Feature feature = new Feature();
+                    feature.setStart(x,y);
+                    feature.setType(3);
+                }
+            }
+        }
+        //右斜查找查找
+        for (int y = 0; y <= data.length - target.length; y++) {
+            for (int x = 0; x <= data[y].length - target.length; x++) {
+                boolean flag = true;
+                for (int l = 0; l < target.length; l++) {
+                    if (data[y + l][x + l] != target[l]) {
+                        flag = false;
+                        break;
+                    }
+                }
+                if (flag) {
+                    Feature feature = new Feature();
+                    feature.setStart(x,y);
+                    feature.setType(4);
+                }
+            }
+        }
+        return features;
     }
 
     private int find(int[][] data, int[] target) {
@@ -109,7 +185,7 @@ public class MatrixEvaluation implements Evaluation {
         return count;
     }
 
-    private int findAll(int[][] data,int[] target){
+    private int findAll(int[][] data, int[] target) {
         return 0;
     }
 
@@ -128,63 +204,63 @@ public class MatrixEvaluation implements Evaluation {
 
     @Override
     public int eval(Chess chess, int type, int next) {
-        int[][] type_me = type==1?TYPE_BLACK:TYPE_WHITE;
-        int[][] type_ot = type==1?TYPE_WHITE:TYPE_BLACK;
+        int[][] type_me = type == 1 ? TYPE_BLACK : TYPE_WHITE;
+        int[][] type_ot = type == 1 ? TYPE_WHITE : TYPE_BLACK;
         int[][] data = chess.getSquare();
-        if(next==type){
-            int myFive = find(data,type_me[0]);
-            if(myFive>0){
+        if (next == type) {
+            int myFive = find(data, type_me[0]);
+            if (myFive > 0) {
                 return 100000;
             }
-            int otFive = find(data,type_ot[0]);
-            if(otFive>0){
+            int otFive = find(data, type_ot[0]);
+            if (otFive > 0) {
                 return -100000;
             }
-            int myFour = find(data,type_me[1])+find(data,type_me[6])+find(data,type_me[7])+find(data,type_me[8])+find(data,type_me[9])+find(data,type_me[10]);
-            if(myFour>0){
+            int myFour = find(data, type_me[1]) + find(data, type_me[6]) + find(data, type_me[7]) + find(data, type_me[8]) + find(data, type_me[9]) + find(data, type_me[10]);
+            if (myFour > 0) {
                 return 10000;
             }
-            int otFour = find(data,type_ot[1]);
-            if(otFour>0){
+            int otFour = find(data, type_ot[1]);
+            if (otFour > 0) {
                 return -10000;
             }
 
-            int otFour2 = find(data,type_ot[6])+find(data,type_ot[7])+find(data,type_ot[8])+find(data,type_ot[9])+find(data,type_ot[10]);
-            int otThree = find(data,type_ot[2])+find(data,type_ot[3])+find(data,type_ot[4])+find(data,type_ot[5]);
-            if(otFour2>0&&otThree>0){
+            int otFour2 = find(data, type_ot[6]) + find(data, type_ot[7]) + find(data, type_ot[8]) + find(data, type_ot[9]) + find(data, type_ot[10]);
+            int otThree = find(data, type_ot[2]) + find(data, type_ot[3]) + find(data, type_ot[4]) + find(data, type_ot[5]);
+            if (otFour2 > 0 && otThree > 0) {
                 return -10000;
             }
-            if(otFour2>0){
+            if (otFour2 > 0) {
                 return -720;
             }
-            int myThree = find(data,type_me[1])+find(data,type_me[2])+find(data,type_me[3])+find(data,type_me[4])+find(data,type_me[5]);
-            if(myThree>0){
+            int myThree = find(data, type_me[1]) + find(data, type_me[2]) + find(data, type_me[3]) + find(data, type_me[4]) + find(data, type_me[5]);
+            if (myThree > 0) {
                 return 4320;
             }
-            if(otThree>1){
+            if (otThree > 1) {
                 return -4320;
             }
-            if(otThree>0){
+            if (otThree > 0) {
                 return -720;
             }
-            int myTwo = find(data,type_me[11])+find(data,type_me[12])+find(data,type_me[13]);
-            int myOne = find(data,type_me[14])+find(data,type_me[15]);
+            int myTwo = find(data, type_me[11]) + find(data, type_me[12]) + find(data, type_me[13]);
+            int myOne = find(data, type_me[14]) + find(data, type_me[15]);
 
-            int otTwo = find(data,type_ot[11])+find(data,type_ot[12])+find(data,type_ot[13]);
-            int otOne = find(data,type_ot[14])+find(data,type_ot[15]);
-            int myScore = myTwo*20+myOne;
-            int otScore = otTwo*20+otOne;
-            return myScore>otScore?myScore:otScore;
-        }else{
-            return -eval(chess,-type,next);
+            int otTwo = find(data, type_ot[11]) + find(data, type_ot[12]) + find(data, type_ot[13]);
+            int otOne = find(data, type_ot[14]) + find(data, type_ot[15]);
+            int myScore = myTwo * 20 + myOne;
+            int otScore = otTwo * 20 + otOne;
+            return myScore > otScore ? myScore : otScore;
+        } else {
+            return -eval(chess, -type, next);
         }
     }
 
     @Override
     public int win(Chess chess) {
-        if(find(chess.getSquare(),TYPE_BLACK[0])>0){
+        if (find(chess.getSquare(), TYPE_BLACK[0]) > 0) {
             return 1;
-        }else if(find(chess.getSquare(),TYPE_WHITE[0])>0){
+        } else if (find(chess.getSquare(), TYPE_WHITE[0]) > 0) {
             return -1;
         }
         return 0;
@@ -210,6 +286,6 @@ public class MatrixEvaluation implements Evaluation {
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 
         });
-        System.out.println(matrixEvaluation.eval(chess, 1,-1));
+        System.out.println(matrixEvaluation.eval(chess, 1, -1));
     }
 }
