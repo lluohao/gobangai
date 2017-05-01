@@ -1,11 +1,14 @@
 package com.luohao.gobang.chess;
 
+import com.luohao.gobang.utils.Matrixs;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Chess {
     private int[][] square;
     private List<ChessNode> nodes = new ArrayList<>();
+    private int[] hashCodes = {15,15,15,15,15,15,15,15,15,15,15,15,15,15,15};
 
     public Chess() {
         square = new int[15][15];
@@ -13,6 +16,7 @@ public class Chess {
 
     public boolean play(int x, int y, int type) {
         ensureIndex(x, y);
+        resetHashCode(x,y,type);
         //处理原始数据
         square[y][x] = type;
         if(type==0){
@@ -25,7 +29,12 @@ public class Chess {
             node.setType(type);
             nodes.add(node);
         }
+        resetHashCode(x,y,type);
         return true;
+    }
+
+    private void resetHashCode(int x,int y,int type){
+        hashCodes[y] += Math.pow(3,x)*(type==-1?2:type)- Math.pow(3,x)*(square[y][x]==-1?2:square[y][x]);
     }
 
     private void back(){
@@ -36,11 +45,15 @@ public class Chess {
     }
 
     private void ensureIndex(int x, int y) {
-        if (x < 0 || x > 15 || y < 0 || y > 15) {
+        if (x < 0 || x >= 15 || y < 0 || y >= 15) {
             throw new RuntimeException("Out of index,the range is [0-15],but x=" + x + ",y=" + y);
         }
     }
 
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 
     public int get(int x, int y) {
         return square[y][x];
@@ -64,5 +77,53 @@ public class Chess {
             }
         }
         return chess;
+    }
+
+    public String hashString(){
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < hashCodes.length; i++) {
+            sb.append(hashCodes[i]);
+        }
+        return sb.toString();
+    }
+
+    public static void main(String[] args) {
+        Chess chess = Chess.fromDate(new int[][]{
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+
+        });
+        chess.play(8,8,1);
+        chess.play(7,7,-1);
+        chess.play(9,7,1);
+
+        chess.play(7,8,-1);
+        chess.play(8,7,1);
+        chess.play(7,9,-1);
+        String s79 = chess.hashString();
+        System.out.println(s79);
+        Matrixs.print(chess.getSquare());
+        System.out.println();
+        chess.play(7,9,0);
+        chess.play(8,9,-1);
+        String s89 = chess.hashString();
+        System.out.println(s89);
+        Matrixs.print(chess.getSquare());
+        System.out.println();
+
+        System.out.println(s79.equals(s89));
     }
 }

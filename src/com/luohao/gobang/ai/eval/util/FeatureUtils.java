@@ -7,22 +7,27 @@ import com.luohao.gobang.chess.Chess;
  * Created by Everthing-- on 2017/4/28.
  */
 public class FeatureUtils {
-    public static boolean isReplace(Feature feature1, Feature feature2, Chess chess) {
-        int dt1x = feature1.getType() != 1 ? 1 : 0;
-        int dtly = feature1.getType() == 2 || feature1.getType() == 4 ? 1 :
-                feature1.getType() == 3 ? -1 : 0;
-
-        int dt2x = feature1.getType() != 1 ? 1 : 0;
-        int dt2y = feature1.getType() == 2 || feature1.getType() == 4 ? 1 :
-                feature1.getType() == 3 ? -1 : 0;
-
-        for (int i = 0; i < 6; i++) {
-            if (chess.get(feature1.getStart().x+dt1x,feature1.getStart().y+dtly)==1){
-                //TODO
-                ;
+    public static boolean isReplace(Feature feature1, Feature feature2) {
+        for(int i = 0;i<feature1.getSize();i++){
+            int x = feature1.getX()+feature1.getDx()*i;
+            int y = feature1.getY()+feature1.getDy()*i;
+            if(feature2.contains(x,y)){
+                return true;
             }
         }
         return false;
+    }
+
+    public static int isReplaceCount(Feature feature1, Feature feature2, Chess chess) {
+        int count = 0;
+        for(int i = 0;i<feature1.getSize();i++){
+            int x = feature1.getX()+feature1.getDx()*i;
+            int y = feature1.getY()+feature1.getDy()*i;
+            if(feature2.contains(x,y)){
+                count+=chess.get(x,y);
+            }
+        }
+        return count;
     }
 
     public static int distance(Feature feature1, Feature feature2) {
@@ -30,12 +35,12 @@ public class FeatureUtils {
     }
 
     public static int distanceX(Feature feature1, Feature feature2) {
-        int dx = Math.abs(feature1.getStart().x - feature2.getStart().x);
+        int dx = Math.abs(feature1.getX() - feature2.getX());
         return dx;
     }
 
     public static int distanceY(Feature feature1, Feature feature2) {
-        int dy = Math.abs(feature1.getStart().y - feature2.getStart().y);
+        int dy = Math.abs(feature1.getY() - feature2.getY());
         return dy;
     }
 

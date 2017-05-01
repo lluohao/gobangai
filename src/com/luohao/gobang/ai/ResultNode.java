@@ -90,4 +90,13 @@ public class ResultNode {
     public List<ResultNode> getChildren() {
         return children;
     }
+
+    @Override
+    public String toString() {
+        if(this.getParent()==null){
+            return "null --> ("+x+","+y+")";
+        }else{
+            return this.getParent()+" --> ("+x+","+y+")";
+        }
+    }
 }

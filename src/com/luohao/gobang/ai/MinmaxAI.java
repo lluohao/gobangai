@@ -2,13 +2,14 @@ package com.luohao.gobang.ai;
 
 import com.luohao.gobang.ai.eval.Evaluation;
 import com.luohao.gobang.ai.eval.MatrixEvaluation;
-import com.luohao.gobang.ai.interceptor.*;
+import com.luohao.gobang.ai.interceptor.AlphaInterceptor;
+import com.luohao.gobang.ai.interceptor.Interceptor;
+import com.luohao.gobang.ai.interceptor.PositionInterceptor;
+import com.luohao.gobang.ai.interceptor.SimpleDateInterceptor;
 import com.luohao.gobang.ai.util.ResultNodeUtils;
 import com.luohao.gobang.chess.Chess;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by llhao on 2017/4/23.
@@ -16,7 +17,7 @@ import java.util.List;
 public class MinmaxAI implements AI {
     private Evaluation evaluation = new MatrixEvaluation();
     private List<Interceptor> interceptors = new ArrayList<>();
-
+    private Map<String,Integer> scoreMap = new HashMap<>();
     public MinmaxAI() {
         interceptors.add(new SimpleDateInterceptor());
         //interceptors.add(new TimeInterceptor(6000));
@@ -27,7 +28,8 @@ public class MinmaxAI implements AI {
 
     private void countNode(ResultNode base, int type, int deep) {
         if (deep == 0) {
-            base.setScore(evaluation.eval(base.getChess(), type));
+            base.setScore(evaluation.eval(base.getChess(), type, -base.getType()));
+            scoreMap.put(base.getChess().hashString(),base.getScore());
         } else {
             //计算此节点的子节点的评价值
             countChildren(base, type, deep);
@@ -39,6 +41,25 @@ public class MinmaxAI implements AI {
                 base.setScore(node.getScore());
                 base.setNext(node);
             }
+        }
+    }
+    public static int count = 0;
+    private boolean serchFromMap(ResultNode node){
+        Chess chess = node.getChess();
+        String key = chess.hashString();
+        Integer value = scoreMap.get(key);
+        if(value==null){
+//            System.out.println("add:"+node+"---:::::"+key);
+//            Matrixs.print(node.getChess().getSquare());
+//            System.out.println();
+            return false;
+        }else {
+            node.setScore(value);
+//            System.out.println(node+"---:::::"+key);
+//            Matrixs.print(node.getChess().getSquare());
+//            System.out.println();
+            count++;
+            return true;
         }
     }
 
@@ -59,7 +80,10 @@ public class MinmaxAI implements AI {
                 node.setParent(base);
                 node.setChess(chess);
                 node.setType(-base.getType());
-                countNode(node, type, deep - 1);
+                if(!serchFromMap(node)) {
+                    countNode(node, type, deep - 1);
+                    scoreMap.put(node.getChess().hashString(),node.getScore());
+                }
                 children.add(node);
                 chess.play(j, i, 0);
             }
@@ -98,6 +122,10 @@ public class MinmaxAI implements AI {
         return true;
     }
 
+    public int mapSize(){
+        return scoreMap.size();
+    }
+
     public ResultNode next(Chess chess, int type, int deep) {
         ResultNode node = new ResultNode();
         node.setType(-type);
@@ -122,4 +150,5 @@ public class MinmaxAI implements AI {
             return o.value - this.value;
         }
     }
+
 }

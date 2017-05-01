@@ -1,5 +1,6 @@
 package com.luohao.gobang.ai.eval;
 
+import com.luohao.gobang.ai.eval.util.FeatureUtils;
 import com.luohao.gobang.chess.Chess;
 
 import java.util.ArrayList;
@@ -10,7 +11,13 @@ import java.util.List;
  */
 public class MatrixEvaluation implements Evaluation {
 
+    private boolean attack = false;
+
     public static final int[] SHAP_SCORE = {50000, 4320, 720, 720, 720, 720, 720, 720, 720, 720, 720, 120, 120, 120, 5, 5};
+
+    public void setAttack(boolean attack) {
+        this.attack = attack;
+    }
 
     @Override
     public int eval(Chess chess, int type) {
@@ -30,6 +37,25 @@ public class MatrixEvaluation implements Evaluation {
             otScore += otCount[i] * SHAP_SCORE[i];
         }
         return myScore > otScore ? myScore : myScore == otScore ? 0 : -otScore;
+    }
+
+    public int evalw(Chess chess, int type ,int next) {
+        int[][] myType = type == 1 ? TYPE_BLACK : TYPE_WHITE;
+        int[][] otType = type == 1 ? TYPE_WHITE : TYPE_BLACK;
+        int[] myCount = new int[myType.length];
+        int[] otCount = new int[otType.length];
+        for (int i = 0; i < myCount.length; i++) {
+            myCount[i] = find(chess.getSquare(), myType[i]);
+            otCount[i] = find(chess.getSquare(), otType[i]);
+        }
+
+        int myScore = 0;
+        int otScore = 0;
+        for (int i = 0; i < myCount.length; i++) {
+            myScore += myCount[i] * SHAP_SCORE[i];
+            otScore += otCount[i] * SHAP_SCORE[i];
+        }
+        return myScore > otScore ? myScore : myScore == otScore ? next==type? myScore:-otScore : -otScore;
     }
 
     @Override
@@ -61,8 +87,12 @@ public class MatrixEvaluation implements Evaluation {
                 }
                 if (flag) {
                     Feature feature = new Feature();
-                    feature.setStart(x,y);
+                    feature.setX(x);
+                    feature.setY(y);
+                    feature.setDx(1);
+                    feature.setDy(0);
                     feature.setType(1);
+                    features.add(feature);
                 }
             }
         }
@@ -78,8 +108,12 @@ public class MatrixEvaluation implements Evaluation {
                 }
                 if (flag) {
                     Feature feature = new Feature();
-                    feature.setStart(x,y);
+                    feature.setX(x);
+                    feature.setY(y);
+                    feature.setDx(0);
+                    feature.setDy(1);
                     feature.setType(2);
+                    features.add(feature);
                 }
             }
         }
@@ -95,8 +129,12 @@ public class MatrixEvaluation implements Evaluation {
                 }
                 if (flag) {
                     Feature feature = new Feature();
-                    feature.setStart(x,y);
+                    feature.setX(x);
+                    feature.setY(y);
+                    feature.setDx(1);
+                    feature.setDy(-1);
                     feature.setType(3);
+                    features.add(feature);
                 }
             }
         }
@@ -112,8 +150,12 @@ public class MatrixEvaluation implements Evaluation {
                 }
                 if (flag) {
                     Feature feature = new Feature();
-                    feature.setStart(x,y);
-                    feature.setType(4);
+                    feature.setX(x);
+                    feature.setY(y);
+                    feature.setDx(1);
+                    feature.setDy(1);
+                    feature.setType(1);
+                    features.add(feature);
                 }
             }
         }
@@ -202,8 +244,74 @@ public class MatrixEvaluation implements Evaluation {
             {0, 0, -1, -1, 0, 0}, {0, 0, -1, 0, -1, 0}, {0, -1, 0, -1, 0, 0}, {0, 0, 0, -1, 0, 0}, {0, 0, -1, 0, 0, 0}
     };
 
-    @Override
+    public int isPositive(int[] myCount,int[] otCount,int type,int next){
+        if (next == type) {
+            int myFive = myCount[0];
+            if (myFive > 0) {
+                return 1;
+            }
+            int otFive = otCount[0];
+            if (otFive > 0) {
+                return -1;
+            }
+            int myFour =  myCount[1]+  myCount[6]+  myCount[7]+ myCount[8]+myCount[9]+ myCount[10];
+            if (myFour > 0) {
+                return 1;
+            }
+            int otFour = otCount[1];
+            if (otFour > 0) {
+                return -1;
+            }
+
+            int otFour2 = otCount[6]+  otCount[7]+ otCount[8]+otCount[9]+ otCount[10];
+            int otThree = otCount[2]+  otCount[3]+ otCount[4]+otCount[5];
+            if (otFour2 > 0 && otThree > 0) {
+                return -1;
+            }
+            int myThree =  myCount[2]+  myCount[3]+ myCount[4]+myCount[5];
+            if (myThree > 0) {
+                return 1;
+            }
+            if (otThree > 0) {
+                return -1;
+            }
+            return 0;
+        } else {
+            return -isPositive(otCount,myCount,-type,next);
+        }
+    }
+
     public int eval(Chess chess, int type, int next) {
+        int[][] myType = type == 1 ? TYPE_BLACK : TYPE_WHITE;
+        int[][] otType = type == 1 ? TYPE_WHITE : TYPE_BLACK;
+        int[] myCount = new int[myType.length];
+        int[] otCount = new int[otType.length];
+
+        for (int i = 0; i < myCount.length; i++) {
+            myCount[i] = find(chess.getSquare(), myType[i]);
+            otCount[i] = find(chess.getSquare(), otType[i]);
+        }
+        int p = isPositive(myCount,otCount,type,next);
+        int myScore = 0;
+        int otScore = 0;
+        for (int i = 0; i < myCount.length; i++) {
+            myScore += myCount[i] * SHAP_SCORE[i];
+            otScore += otCount[i] * SHAP_SCORE[i];
+        }
+        if(p==0) {
+            if(attack) {
+                return myScore > otScore ? myScore : myScore == otScore ? 0 : -otScore;
+            }else {
+                return -otScore;
+            }
+        }else if(p==1){
+            return myScore;
+        }else {
+            return -otScore;
+        }
+    }
+
+    private int eval0(Chess chess, int type, int next) {
         int[][] type_me = type == 1 ? TYPE_BLACK : TYPE_WHITE;
         int[][] type_ot = type == 1 ? TYPE_WHITE : TYPE_BLACK;
         int[][] data = chess.getSquare();
@@ -238,7 +346,23 @@ public class MatrixEvaluation implements Evaluation {
                 return 4320;
             }
             if (otThree > 1) {
-                return -4320;
+                List<Feature> features = new ArrayList<>();
+                features.addAll(findFeature(data,type_ot[2]));
+                features.addAll(findFeature(data,type_ot[3]));
+                features.addAll(findFeature(data,type_ot[4]));
+                features.addAll(findFeature(data,type_ot[5]));
+                int replace = 0;
+                for(int i = 0;i<features.size()-1;i++){
+                    for(int j=i+1;j<features.size();j++){
+                        int count = FeatureUtils.isReplaceCount(features.get(i),features.get(j),chess);
+                        if(count==3){
+                            replace++;
+                        }
+                    }
+                }
+                if(features.size()-replace>1) {
+                    return -4320;
+                }
             }
             if (otThree > 0) {
                 return -720;
@@ -250,7 +374,7 @@ public class MatrixEvaluation implements Evaluation {
             int otOne = find(data, type_ot[14]) + find(data, type_ot[15]);
             int myScore = myTwo * 20 + myOne;
             int otScore = otTwo * 20 + otOne;
-            return myScore > otScore ? myScore : otScore;
+            return myScore > otScore ? myScore : -otScore;
         } else {
             return -eval(chess, -type, next);
         }
@@ -273,11 +397,11 @@ public class MatrixEvaluation implements Evaluation {
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                 {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
                 {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
-                {0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 1, -1, 1, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0},
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -286,6 +410,8 @@ public class MatrixEvaluation implements Evaluation {
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 
         });
-        System.out.println(matrixEvaluation.eval(chess, 1, -1));
+         int score = matrixEvaluation.eval(chess,-1,1);
+         int score2 =matrixEvaluation.eval(chess,-1);
+         System.out.println(score+":::::"+score2);
     }
 }
