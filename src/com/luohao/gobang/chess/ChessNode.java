@@ -9,6 +9,14 @@ public class ChessNode {
     private int type;
     private ChessNode next;
 
+    public ChessNode() {
+    }
+
+    public ChessNode(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
     public int getX() {
         return x;
     }

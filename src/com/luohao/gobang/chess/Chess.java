@@ -1,5 +1,6 @@
 package com.luohao.gobang.chess;
 
+import com.luohao.gobang.ai.eval.Feature;
 import com.luohao.gobang.utils.Matrixs;
 
 import java.util.ArrayList;
@@ -9,9 +10,12 @@ public class Chess {
     private int[][] square;
     private List<ChessNode> nodes = new ArrayList<>();
     private int[] hashCodes = {15,15,15,15,15,15,15,15,15,15,15,15,15,15,15};
-
+    private List<List<Feature>> features = new ArrayList<>();
     public Chess() {
         square = new int[15][15];
+        for(int i = 0;i<6;i++){
+            features.add(new ArrayList<Feature>());
+        }
     }
 
     public boolean play(int x, int y, int type) {
@@ -77,6 +81,22 @@ public class Chess {
             }
         }
         return chess;
+    }
+
+    public void addFeature(Feature feature,int index){
+        features.get(index).add(feature);
+    }
+    public void addFeatures(List<Feature> es,int index){
+        List<Feature> features1 = features.get(index);
+        features1.addAll(es);
+    }
+
+    public List<Feature> getFeatures(int index){
+        return features.get(index);
+    }
+
+    public void cleanFeatures(){
+        this.features = new ArrayList<>();
     }
 
     public String hashString(){

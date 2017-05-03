@@ -1,5 +1,11 @@
 package com.luohao.gobang.ai.eval;
 
+import com.luohao.gobang.chess.Chess;
+import com.luohao.gobang.chess.ChessNode;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Everthing-- on 2017/4/28.
  */
@@ -10,14 +16,22 @@ public class Feature {
     private int type;
     private int dx;
     private int dy;
-
-
     public boolean contains(int x,int y){
         int len = dx==0?y-this.y:x-this.x;
         if(len<0||len>=size){
             return false;
         }
         return dx*y == dy*x+this.y*dx-this.x*dy;
+    }
+
+    public List<ChessNode> noChessPosition(Chess chess){
+        List<ChessNode> points = new ArrayList<>();
+        for(int i = 0;i<size;i++){
+            if(chess.get(x+dx*i,y+dy*i)==0){
+                points.add(new ChessNode(x+dx*i,y+dy*i));
+            }
+        }
+        return points;
     }
 
     public static void main(String[] args) {
@@ -34,7 +48,6 @@ public class Feature {
             }
         }
     }
-
 
     public int getDx() {
         return dx;

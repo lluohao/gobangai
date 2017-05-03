@@ -126,6 +126,10 @@ public class MinmaxAI implements AI {
         return scoreMap.size();
     }
 
+    public void clearMap(){
+        scoreMap.clear();
+    }
+
     public ResultNode next(Chess chess, int type, int deep) {
         ResultNode node = new ResultNode();
         node.setType(-type);

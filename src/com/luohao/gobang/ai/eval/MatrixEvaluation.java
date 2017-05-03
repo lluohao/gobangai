@@ -2,6 +2,7 @@ package com.luohao.gobang.ai.eval;
 
 import com.luohao.gobang.ai.eval.util.FeatureUtils;
 import com.luohao.gobang.chess.Chess;
+import com.luohao.gobang.utils.Matrixs;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -227,10 +228,6 @@ public class MatrixEvaluation implements Evaluation {
         return count;
     }
 
-    private int findAll(int[][] data, int[] target) {
-        return 0;
-    }
-
     public static final int[][] TYPE_BLACK = {
             {1, 1, 1, 1, 1}, {0, 1, 1, 1, 1, 0},
             {0, 1, 1, 1, 0, 0}, {0, 0, 1, 1, 1, 0}, {0, 1, 0, 1, 1, 0}, {0, 1, 1, 0, 1, 0},
@@ -243,6 +240,13 @@ public class MatrixEvaluation implements Evaluation {
             {-1, -1, -1, -1, 0}, {0, -1, -1, -1, -1}, {-1, -1, 0, -1, -1}, {-1, 0, -1, -1, -1}, {-1, -1, -1, 0, -1},
             {0, 0, -1, -1, 0, 0}, {0, 0, -1, 0, -1, 0}, {0, -1, 0, -1, 0, 0}, {0, 0, 0, -1, 0, 0}, {0, 0, -1, 0, 0, 0}
     };
+
+    public static final int[] TYPE_COUNT = new int[TYPE_BLACK.length];
+    static {
+        for (int i = 0; i < TYPE_BLACK.length; i++) {
+            TYPE_COUNT[i] = Matrixs.count(TYPE_BLACK[i]);
+        }
+    }
 
     public int isPositive(int[] myCount,int[] otCount,int type,int next){
         if (next == type) {
@@ -288,8 +292,8 @@ public class MatrixEvaluation implements Evaluation {
         int[] otCount = new int[otType.length];
 
         for (int i = 0; i < myCount.length; i++) {
-            myCount[i] = find(chess.getSquare(), myType[i]);
-            otCount[i] = find(chess.getSquare(), otType[i]);
+            myCount[i] = find(chess.getSquare(),myType[i]);
+            otCount[i] = find(chess.getSquare(),otType[i]);
         }
         int p = isPositive(myCount,otCount,type,next);
         int myScore = 0;
@@ -410,8 +414,10 @@ public class MatrixEvaluation implements Evaluation {
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 
         });
-         int score = matrixEvaluation.eval(chess,-1,1);
-         int score2 =matrixEvaluation.eval(chess,-1);
-         System.out.println(score+":::::"+score2);
+        long start = System.currentTimeMillis();
+        for(int i = 0;i<1000000;i++){
+            matrixEvaluation.findFeature(chess.getSquare(),TYPE_WHITE[0]);
+        }
+        System.out.println(System.currentTimeMillis()-start);
     }
 }

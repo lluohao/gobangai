@@ -14,6 +14,14 @@ public class Matrixs {
         return data;
     }
 
+    public static int count(int[] data){
+        int count = 0;
+        for (int datum : data) {
+            count+=datum;
+        }
+        return count;
+    }
+
     public static void print(int[][] data) {
         int l=0;
         for (int[] datum : data) {
