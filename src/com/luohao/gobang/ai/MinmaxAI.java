@@ -1,7 +1,6 @@
 package com.luohao.gobang.ai;
 
-import com.luohao.gobang.ai.eval.Evaluation;
-import com.luohao.gobang.ai.eval.MatrixEvaluation;
+import com.luohao.gobang.ai.eval.DynamicEvaluation;
 import com.luohao.gobang.ai.interceptor.AlphaInterceptor;
 import com.luohao.gobang.ai.interceptor.Interceptor;
 import com.luohao.gobang.ai.interceptor.PositionInterceptor;
@@ -15,7 +14,7 @@ import java.util.*;
  * Created by llhao on 2017/4/23.
  */
 public class MinmaxAI implements AI {
-    private Evaluation evaluation = new MatrixEvaluation();
+    private DynamicEvaluation evaluation = new DynamicEvaluation();
     private List<Interceptor> interceptors = new ArrayList<>();
     private Map<String,Integer> scoreMap = new HashMap<>();
     public MinmaxAI() {

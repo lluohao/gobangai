@@ -2,13 +2,11 @@ package com.luohao.gobang.test;
 
 import com.luohao.gobang.ai.MinmaxAI;
 import com.luohao.gobang.ai.ResultNode;
-import com.luohao.gobang.ai.eval.Evaluation;
-import com.luohao.gobang.ai.eval.MatrixEvaluation;
+import com.luohao.gobang.ai.eval.DynamicEvaluation;
 import com.luohao.gobang.ai.util.ResultNodeUtils;
-import com.luohao.gobang.chess.Chess;
+import com.luohao.gobang.chess.DynamicChess;
 import com.luohao.gobang.utils.Matrixs;
 
-import javax.swing.*;
 import java.util.Scanner;
 
 /**
@@ -16,7 +14,8 @@ import java.util.Scanner;
  */
 public class Test {
     public static void main(String[] args) {
-        Chess chess = Chess.fromDate(new int[][]{
+        DynamicEvaluation evaluation = new DynamicEvaluation();
+        DynamicChess chess = DynamicChess.fromDate(new int[][]{
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -33,11 +32,9 @@ public class Test {
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 
-        });
-        JPanel p = new JPanel();
+        },evaluation);
         MinmaxAI ai = new MinmaxAI();
         Scanner in = new Scanner(System.in);
-        Evaluation evaluation = new MatrixEvaluation();
         for (int i = 0; i < 100; i++) {
             ai.clearMap();
             MinmaxAI.count=0;

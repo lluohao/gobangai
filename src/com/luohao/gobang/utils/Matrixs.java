@@ -41,4 +41,47 @@ public class Matrixs {
         }
         print(data);
     }
+
+    public static int[] subVector(int[][] data,int x,int y,int dx,int dy,int size){
+        int[] arr = new int[size];
+        for (int i = 0; i < size; i++) {
+            arr[i] = data[y+dy*i][x+dx*i];
+        }
+        return arr;
+    }
+
+    public static int[] subVector(int[][] data,int x,int y,int dx,int dy,int size,int[] result){
+        for (int i = 0; i < size; i++) {
+            result[i] = data[y+dy*i][x+dx*i];
+        }
+        return result;
+    }
+
+
+    public static void main(String[] args) {
+        int[][] data = new int[][]{
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 1, -1, 1, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+
+        };
+        long start = System.currentTimeMillis();
+        int[] arr = new int[6];
+        for(int i = 0;i<100000000;i++){
+            arr = subVector(data,5,8,1,0,6,arr);
+        }
+        System.out.println(System.currentTimeMillis()-start);
+    }
 }
