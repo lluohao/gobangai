@@ -12,6 +12,8 @@ public class DynamicChess extends Chess {
     private int[][] shapRow = new int[15][15];
     private int[][] shapLeft = new int[15][15];
     private int[][] shapRight = new int[15][15];
+    private int[] blackCount = new int[16];
+    private int[] whiteCount = new int[16];
     private DynamicEvaluation evaluation;
 
     public DynamicChess(DynamicEvaluation evaluation) {
@@ -23,21 +25,41 @@ public class DynamicChess extends Chess {
         update(x,y);
         return true;
     }
+
+    private void updateCount(int i,int value){
+        if(i==0){
+            return;
+        }else if(i==100){
+            blackCount[0]+=value;
+        }else if(i==-100){
+            whiteCount[0]+=value;
+        }else if(i>0){
+            blackCount[i]+=value;
+        }else{
+            whiteCount[-i]+=value;
+        }
+    }
     private void update(int x,int y){
         //update line
         for(int ix = Math.max(0,x-6);ix<=Math.min(x,9);ix++){
+            updateCount(shapLine[y][ix],-1);
             shapLine[y][ix] = evaluation.shapType(this,ix,y,1,0);
+            updateCount(shapLine[y][ix],1);
         }
         //update row
         for(int iy = Math.max(0,y-6);iy<=Math.min(y,9);iy++){
+            updateCount(shapRow[iy][x],-1);
             shapRow[iy][x] = evaluation.shapType(this,x,iy,0,1);
+            updateCount(shapRow[iy][x],1);
         }
         //update right
         for(int i = 0;i<6;i++){
             int rx = x-i;
             int ry = y-i;
             if(rx>=0&&ry>=0) {
+                updateCount(shapRight[ry][rx],-1);
                 shapRight[ry][rx] = evaluation.shapType(this, rx, ry, 1, 1);
+                updateCount(shapRight[ry][rx],1);
             }
         }
         //update left
@@ -45,9 +67,19 @@ public class DynamicChess extends Chess {
             int rx = x-i;
             int ry = y+i;
             if(rx>=0&&ry<=14) {
+                updateCount(shapLeft[ry][rx],-1);
                 shapLeft[ry][rx] = evaluation.shapType(this, rx, ry, 1, -1);
+                updateCount(shapLeft[ry][rx],1);
             }
         }
+    }
+
+    public int[] getBlackCount() {
+        return blackCount;
+    }
+
+    public int[] getWhiteCount() {
+        return whiteCount;
     }
 
     public int[][] getShapLine() {
@@ -77,19 +109,6 @@ public class DynamicChess extends Chess {
         }
         return chess;
     }
-
-    public static final int[][] TYPE_BLACK = {
-            {1, 1, 1, 1, 1}, {0, 1, 1, 1, 1, 0},
-            {0, 1, 1, 1, 0, 0}, {0, 0, 1, 1, 1, 0}, {0, 1, 0, 1, 1, 0}, {0, 1, 1, 0, 1, 0},
-            {1, 1, 1, 1, 0}, {0, 1, 1, 1, 1}, {1, 1, 0, 1, 1}, {1, 0, 1, 1, 1}, {1, 1, 1, 0, 1},
-            {0, 0, 1, 1, 0, 0}, {0, 0, 1, 0, 1, 0}, {0, 1, 0, 1, 0, 0}, {0, 0, 0, 1, 0, 0}, {0, 0, 1, 0, 0, 0}
-    };
-    public static final int[][] TYPE_WHITE = {
-            {-1, -1, -1, -1, -1}, {0, -1, -1, -1, -1, 0},
-            {0, -1, -1, -1, 0, 0}, {0, 0, -1, -1, -1, 0}, {0, -1, 0, -1, -1, 0}, {0, -1, -1, 0, -1, 0},
-            {-1, -1, -1, -1, 0}, {0, -1, -1, -1, -1}, {-1, -1, 0, -1, -1}, {-1, 0, -1, -1, -1}, {-1, -1, -1, 0, -1},
-            {0, 0, -1, -1, 0, 0}, {0, 0, -1, 0, -1, 0}, {0, -1, 0, -1, 0, 0}, {0, 0, 0, -1, 0, 0}, {0, 0, -1, 0, 0, 0}
-    };
     public static void main(String[] args) {
         DynamicEvaluation evaluation = new DynamicEvaluation();
         DynamicChess chess = DynamicChess.fromDate(new int[][]{

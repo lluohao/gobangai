@@ -7,21 +7,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Chess {
+    private int hashCode = 0;
+    private int[][][] hashRandom = new int[2][15][15];
     private int[][] square;
     private List<ChessNode> nodes = new ArrayList<>();
-    private int[] hashCodes = {15,15,15,15,15,15,15,15,15,15,15,15,15,15,15};
     private List<List<Feature>> features = new ArrayList<>();
     public Chess() {
         square = new int[15][15];
         for(int i = 0;i<6;i++){
             features.add(new ArrayList<Feature>());
         }
+        for(int i = 0;i<hashRandom.length;i++){
+            for(int j = 0;j<hashRandom[i].length;j++){
+                for (int k = 0;k<hashRandom[i][j].length;k++){
+                    hashRandom[i][j][k] = (int)(Math.random()*100000000);
+                    //hashRandom[i][j][k] = k+15*j;
+                }
+            }
+        }
     }
 
     public boolean play(int x, int y, int type) {
-        ensureIndex(x, y);
-        resetHashCode(x,y,type);
         //处理原始数据
+        resetHashCode(x,y,type);
         square[y][x] = type;
         if(type==0){
             back();
@@ -33,12 +41,25 @@ public class Chess {
             node.setType(type);
             nodes.add(node);
         }
-        resetHashCode(x,y,type);
         return true;
     }
 
     private void resetHashCode(int x,int y,int type){
-        hashCodes[y] += Math.pow(3,x)*(type==-1?2:type)- Math.pow(3,x)*(square[y][x]==-1?2:square[y][x]);
+        int old = square[y][x];
+        if(old!=0){
+            if(old==1){
+                hashCode-=hashRandom[1][y][x];
+            }else{
+                hashCode-=hashRandom[0][y][x];
+            }
+        }
+        if(type!=0){
+            if(type==1){
+                hashCode += hashRandom[1][y][x];
+            }else{
+                hashCode += hashRandom[0][y][x];
+            }
+        }
     }
 
     private void back(){
@@ -53,10 +74,21 @@ public class Chess {
             throw new RuntimeException("Out of index,the range is [0-15],but x=" + x + ",y=" + y);
         }
     }
-
     @Override
     public int hashCode() {
-        return super.hashCode();
+        int code = 0;
+        for (int i = 0; i < square.length; i++) {
+            for (int j = 0; j < square[i].length; j++) {
+                if(square[i][j]==0){
+                    continue;
+                }else if(square[i][j]==1){
+                    code += hashRandom[0][i][j];
+                }else {
+                    code += hashRandom[1][i][j];
+                }
+            }
+        }
+        return code;
     }
 
     public int get(int x, int y) {
@@ -99,14 +131,6 @@ public class Chess {
         this.features = new ArrayList<>();
     }
 
-    public String hashString(){
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < hashCodes.length; i++) {
-            sb.append(hashCodes[i]);
-        }
-        return sb.toString();
-    }
-
     public static void main(String[] args) {
         Chess chess = Chess.fromDate(new int[][]{
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -126,24 +150,15 @@ public class Chess {
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 
         });
-        chess.play(8,8,1);
-        chess.play(7,7,-1);
-        chess.play(9,7,1);
 
+        Matrixs.print(chess.hashRandom[0]);
+        System.out.println();
+        Matrixs.print(chess.hashRandom[1]);
+        chess.play(7,7,1);
+        System.out.println(chess.hashCode());
         chess.play(7,8,-1);
-        chess.play(8,7,1);
-        chess.play(7,9,-1);
-        String s79 = chess.hashString();
-        System.out.println(s79);
-        Matrixs.print(chess.getSquare());
-        System.out.println();
-        chess.play(7,9,0);
-        chess.play(8,9,-1);
-        String s89 = chess.hashString();
-        System.out.println(s89);
-        Matrixs.print(chess.getSquare());
-        System.out.println();
-
-        System.out.println(s79.equals(s89));
+        System.out.println(chess.hashCode());
+        chess.play(7,8,0);
+        System.out.println(chess.hashCode());
     }
 }

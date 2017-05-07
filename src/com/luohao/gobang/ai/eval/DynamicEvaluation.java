@@ -4,16 +4,18 @@ import com.luohao.gobang.chess.Chess;
 import com.luohao.gobang.chess.DynamicChess;
 import com.luohao.gobang.utils.Matrixs;
 
+import java.util.Arrays;
+
 /**
  * Created by llhao on 2017/4/26.
  */
 public class DynamicEvaluation extends MatrixEvaluation {
 
-    private boolean attack = false;
+    private boolean attack = true;
     public void setAttack(boolean attack) {
         this.attack = attack;
     }
-    public static final int[] SHAP_SCORE = {50000, 4320, 720, 720, 720, 720, 720, 720, 720, 720, 720, 120, 120, 120, 5, 5};
+    public static final int[] SHAP_SCORE = {50000, 4320, 720, 720, 720, 720, 720, 720, 720, 720, 720, 120, 120, 120, 4, 4};
     public static final int[][] TYPE_BLACK = {
             {1, 1, 1, 1, 1}, {0, 1, 1, 1, 1, 0},
             {0, 1, 1, 1, 0, 0}, {0, 0, 1, 1, 1, 0}, {0, 1, 0, 1, 1, 0}, {0, 1, 1, 0, 1, 0},
@@ -34,14 +36,29 @@ public class DynamicEvaluation extends MatrixEvaluation {
         }
     }
 
+    public int win(Chess chess) {
+        if(chess instanceof DynamicChess) {
+            if (((DynamicChess) chess).getBlackCount()[0]>0) {
+                return 1;
+            } else if (((DynamicChess) chess).getWhiteCount()[0]>0) {
+                return -1;
+            }
+            return 0;
+        }else {
+            return super.win(chess);
+        }
+    }
 
     @Override
     public int eval(Chess c, int type, int next) {
+        int win = win(c);
+        if(win!=0){
+            return win*1000000*type;
+        }
         if(c instanceof DynamicChess){
             DynamicChess chess = (DynamicChess)c;
-            int[] myCount = new int[TYPE_BLACK.length];
-            int[] otCount = new int[TYPE_WHITE.length];
-            count(chess,myCount,otCount,type);
+            int[] myCount = type==1?chess.getBlackCount():chess.getWhiteCount();
+            int[] otCount = type==1?chess.getWhiteCount():chess.getBlackCount();
             int myScore = 0;
             int otScore = 0;
             for (int i = 0; i < myCount.length; i++) {
@@ -143,7 +160,7 @@ public class DynamicEvaluation extends MatrixEvaluation {
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                {0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -157,5 +174,6 @@ public class DynamicEvaluation extends MatrixEvaluation {
         System.out.println(score);
         System.out.println(score1);
         System.out.println();
+        System.out.println(Arrays.toString(chess.getBlackCount()));
     }
 }

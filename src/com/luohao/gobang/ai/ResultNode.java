@@ -12,7 +12,7 @@ public class ResultNode {
     private int x;
     private int y;
     private int type;
-    private Integer score;
+    private Integer score = 1;
     private ResultNode parent;
     private List<ResultNode> children = new ArrayList<>();
     private boolean max;
@@ -93,6 +93,7 @@ public class ResultNode {
 
     @Override
     public String toString() {
+        //return x+","+y+","+score;
         if(this.getParent()==null){
             return "null --> ("+x+","+y+")";
         }else{

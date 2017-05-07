@@ -58,6 +58,19 @@ public class Matrixs {
     }
 
 
+    public static boolean same(int[][] data,int[][] data2){
+        for (int i = 0; i < data.length; i++) {
+            for (int j = 0; j < data[i].length; j++) {
+                if(data[i][j]!=data2[i][j]){
+                    return false;
+                }
+
+            }
+        }
+        return true;
+    }
+
+
     public static void main(String[] args) {
         int[][] data = new int[][]{
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},

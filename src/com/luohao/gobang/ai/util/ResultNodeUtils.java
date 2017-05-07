@@ -9,6 +9,25 @@ import java.util.List;
  * Created by llhao on 2017/4/23.
  */
 public class ResultNodeUtils {
+
+    public static int deep(ResultNode node){
+        if(node==null){
+            return 0;
+        }
+        List<ResultNode> nodes = node.getChildren();
+        if(nodes==null||nodes.size()==0){
+            return 1;
+        }
+        int max = 0;
+        for (ResultNode resultNode : nodes) {
+            int temp = deep(resultNode);
+            if(temp>max){
+                max = temp;
+            }
+        }
+        return max+1;
+    }
+
     public static List<ResultNode> serchNode(List<ResultNode> nodes, int p) {
         int max = Integer.MIN_VALUE;
         for (int i = 0; i < nodes.size(); i++) {

@@ -5,18 +5,26 @@ import com.luohao.gobang.ai.interceptor.AlphaInterceptor;
 import com.luohao.gobang.ai.interceptor.Interceptor;
 import com.luohao.gobang.ai.interceptor.PositionInterceptor;
 import com.luohao.gobang.ai.interceptor.SimpleDateInterceptor;
+import com.luohao.gobang.ai.record.Record;
+import com.luohao.gobang.ai.record.ZobristRecord;
+import com.luohao.gobang.ai.sort.Sorter;
+import com.luohao.gobang.ai.sort.ThreatSorter;
 import com.luohao.gobang.ai.util.ResultNodeUtils;
 import com.luohao.gobang.chess.Chess;
+import com.luohao.gobang.chess.Point;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * Created by llhao on 2017/4/23.
  */
 public class MinmaxAI implements AI {
-    private DynamicEvaluation evaluation = new DynamicEvaluation();
-    private List<Interceptor> interceptors = new ArrayList<>();
-    private Map<String,Integer> scoreMap = new HashMap<>();
+    private DynamicEvaluation evaluation = new DynamicEvaluation();//估值
+    private List<Interceptor> interceptors = new ArrayList<>();//过滤器
+    private Sorter sorter = new ThreatSorter();//排序
+    private Record record = new ZobristRecord();
     public MinmaxAI() {
         interceptors.add(new SimpleDateInterceptor());
         //interceptors.add(new TimeInterceptor(6000));
@@ -25,16 +33,47 @@ public class MinmaxAI implements AI {
         interceptors.add(new PositionInterceptor());
     }
 
+    public DynamicEvaluation getEvaluation() {
+        return evaluation;
+    }
+
+    public List<Interceptor> getInterceptors() {
+        return interceptors;
+    }
+
+    public Sorter getSorter() {
+        return sorter;
+    }
+
+    public Record getRecord() {
+        return record;
+    }
+
+    public long getStart() {
+        return start;
+    }
+    private long start = System.currentTimeMillis();
     private void countNode(ResultNode base, int type, int deep) {
+        //System.out.println(base);
         if (deep == 0) {
+//            if(System.currentTimeMillis()-start>100){
+//                ResultNode temp = base;
+//                while(temp.getParent()!=null){
+//                    temp = temp.getParent();
+//                }
+//                System.out.println("NOW:"+ResultNodeUtils.countChildren(temp)+":"+ZobristRecord.count);
+//                start=System.currentTimeMillis();
+//            }
             base.setScore(evaluation.eval(base.getChess(), type, -base.getType()));
-            scoreMap.put(base.getChess().hashString(),base.getScore());
+            record.addNode(base.getChess(),base.getScore());
         } else {
             //计算此节点的子节点的评价值
             countChildren(base, type, deep);
             List<ResultNode> resultNodes = base.isMax() ? ResultNodeUtils.maxNodes(base.getChildren()) : ResultNodeUtils.minNodes(base.getChildren());
             if (resultNodes.size() == 0) {
-                base.setScore(evaluation.eval(base.getChess(), type));
+                if(base.getScore()==1) {
+                    base.setScore(evaluation.eval(base.getChess(), type));
+                }
             } else {
                 ResultNode node = resultNodes.get((int) (Math.random() * resultNodes.size()));
                 base.setScore(node.getScore());
@@ -42,91 +81,48 @@ public class MinmaxAI implements AI {
             }
         }
     }
-    public static int count = 0;
-    private boolean serchFromMap(ResultNode node){
-        Chess chess = node.getChess();
-        String key = chess.hashString();
-        Integer value = scoreMap.get(key);
-        if(value==null){
-//            System.out.println("add:"+node+"---:::::"+key);
-//            Matrixs.print(node.getChess().getSquare());
-//            System.out.println();
-            return false;
-        }else {
-            node.setScore(value);
-//            System.out.println(node+"---:::::"+key);
-//            Matrixs.print(node.getChess().getSquare());
-//            System.out.println();
-            count++;
-            return true;
-        }
-    }
-
     private void countChildren(ResultNode base, int type, int deep) {
         List<ResultNode> children = new ArrayList<>();
         Chess chess = base.getChess();
         base.setChildren(children);
-        List<Point> points = buildPoints(chess);
+        List<Point> points = sorter.buildPoints(chess);
         for (Point point : points) {
-            int i = point.x;
-            int j = point.y;
-            if (intercept(base, i, j)) {//如果这个位置可以下棋
-                chess.play(j, i, -base.getType());
+            int y = point.getY();
+            int x = point.getX();
+            if (intercept(base, x, y)) {//如果这个位置可以下棋
+                chess.play(x, y, -base.getType());
                 ResultNode node = new ResultNode();
-                node.setX(j);
-                node.setY(i);
+                node.setX(x);
+                node.setY(y);
                 node.setMax(!base.isMax());
                 node.setParent(base);
                 node.setChess(chess);
                 node.setType(-base.getType());
-                if(!serchFromMap(node)) {
+                Integer re = record.find(node);
+                if(re==null) {
                     countNode(node, type, deep - 1);
-                    scoreMap.put(node.getChess().hashString(),node.getScore());
+                    record.addNode(chess,node.getScore());
+                    //System.out.println("ADD:"+node+"::::"+node.getChess().hashCode());
+                }else{
+                    ZobristRecord.count++;
+                    node.setScore(re);
+                    //System.out.println("FID:"+node+"::::"+node.getChess().hashCode());
+                    //System.exit(0);
                 }
                 children.add(node);
-                chess.play(j, i, 0);
+                chess.play(x, y, 0);
             }
         }
         base.setChildren(children);
     }
 
-    private List<Point> buildPoints(Chess chess) {
-        List<Point> points = new ArrayList<>();
-        int[][] data = chess.getSquare();
-        for (int i = 0; i < data.length; i++) {
-            for (int j = 0; j < data[i].length; j++) {
-                Point point = new Point(j, i);
-                int sum = 0;
-                for (int l = -1; l < 2; l++) {
-                    for (int k = -1; k < 2; k++) {
-                        if ((i + l) >= 0 && (i + l) < 15 && (j + k) >= 0 && (j + k) < 15 && data[i + l][j + k] != 0) {
-                            sum++;
-                        }
-                    }
-                }
-                point.value = sum;
-                points.add(point);
-            }
-        }
-        Collections.sort(points);
-        return points;
-    }
-
-    private boolean intercept(ResultNode node, int i, int j) {
+    private boolean intercept(ResultNode node, int x, int y) {
         for (Interceptor interceptor : interceptors) {
-            if (!interceptor.intercept(node, i, j)) {
+            if (!interceptor.intercept(node, x, y)) {
                 return false;
             }
         }
         return true;
-    }
-
-    public int mapSize(){
-        return scoreMap.size();
-    }
-
-    public void clearMap(){
-        scoreMap.clear();
     }
 
     public ResultNode next(Chess chess, int type, int deep) {
@@ -137,21 +133,4 @@ public class MinmaxAI implements AI {
         countNode(node, type, deep);
         return node.getNext();
     }
-
-    private class Point implements Comparable<Point> {
-        private int x;
-        private int y;
-        private int value;
-
-        public Point(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        @Override
-        public int compareTo(Point o) {
-            return o.value - this.value;
-        }
-    }
-
 }
